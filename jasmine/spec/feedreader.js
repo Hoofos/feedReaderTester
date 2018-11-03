@@ -1,35 +1,18 @@
 /* feedreader.js
  *
- * This is the spec file that Jasmine will read and contains
- * all of the tests that will be run against your application.
+ * Arquivo de teste Jasmine.
  */
 
-/* We're placing all of our tests within the $() function,
- * since some of these tests may require DOM elements. We want
- * to ensure they don't run until the DOM is ready.
- */
 $(function() {
-    /* This is our first test suite - a test suite just contains
-    * a related set of tests. This suite is all about the RSS
-    * feeds definitions, the allFeeds variable in our application.
-    */
+
+    // Primeiro grupo de testes - Feed
     describe('RSS Feeds', function() {
-        /* This is our first test - it tests to make sure that the
-         * allFeeds variable has been defined and that it is not
-         * empty. Experiment with this before you get started on
-         * the rest of this project. What happens when you change
-         * allFeeds in app.js to be an empty array and refresh the
-         * page?
-         */
+
         it('todas as feeds estão definidas e são não vazias', function() {
             expect(allFeeds).toBeDefined();             // esperamos que array de feeds está definido
             expect(allFeeds.length).not.toBe(0);        // esperamos que array de feeds não está vazio
         });
 
-        /* TODO: Write a test that loops through each feed
-         * in the allFeeds object and ensures it has a URL defined
-         * and that the URL is not empty.
-         */
         it('todas as feeds possuem URL definida e não vazia', function() {
             allFeeds.forEach(function(feed) {
 
@@ -38,10 +21,6 @@ $(function() {
             });
         });
 
-        /* TODO: Write a test that loops through each feed
-         * in the allFeeds object and ensures it has a name defined
-         * and that the name is not empty.
-         */
         it('todas as feeds possuem nome definido e não vazio', function() {
             allFeeds.forEach(function(feed) {
 
@@ -52,8 +31,7 @@ $(function() {
 
     });
 
-
-    /* TODO: Write a new test suite named "The menu" */ 
+    // Segundo grupo de testes - Menu
     describe('O menu', function() {
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -63,20 +41,10 @@ $(function() {
         no elemento <body> e a classe "menu-hidden" atribuída a ele.
         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        /* TODO: Write a test that ensures the menu element is
-         * hidden by default. You'll have to analyze the HTML and
-         * the CSS to determine how we're performing the
-         * hiding/showing of the menu element.
-         */
         it('menu está oculto por padrão', function() {
             expect($('body').hasClass('menu-hidden')).toBe(true);   // esperamos que body possui class "menu-hidden"
         });
 
-         /* TODO: Write a test that ensures the menu changes
-          * visibility when the menu icon is clicked. This test
-          * should have two expectations: does the menu display when
-          * clicked and does it hide when clicked again.
-          */
         it('a visibilidade do menu se altera quando o ícone é clicado', function() {
 
             // primeiro criamos um objeto com o botão/ícone do menu
@@ -95,8 +63,7 @@ $(function() {
 
     });
 
-
-    /* TODO: Write a new test suite named "Initial Entries" */
+    // Terceiro grupo de testes - Primeira carga de feed
     describe('Entradas iniciais', function() {
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -107,13 +74,6 @@ $(function() {
         com classe "entry", lembrando que loadFeed é assíncrona.
         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-        /* TODO: Write a test that ensures when the loadFeed
-         * function is called and completes its work, there is at least
-         * a single .entry element within the .feed container.
-         * Remember, loadFeed() is asynchronous so this test will require
-         * the use of Jasmine's beforeEach and asynchronous done() function.
-         */
-
         // Como se trata de uma chamada assíncrona, precisamos chamar
         // antes beforeEach com done como argumento.
         beforeEach(function(done) {
@@ -121,42 +81,54 @@ $(function() {
         });
 
          it('conteúdo é carregado quando loadFeed é chamado', function(done) {
-            const artigos = $('.entry');                    // procuramos por todos os artigos carregados
+            const artigos = $('.feed .entry');                  // procuramos por todos os artigos carregados
 
-            expect(artigos.length).toBeGreaterThan(0);      // esperamos que artigo existe / entradas iniciais existem
+            expect(artigos.length).toBeGreaterThan(0);          // esperamos que artigo existe / entradas iniciais existem
             done();
         });
     });
 
-
-    /* TODO: Write a new test suite named "New Feed Selection" */
     describe('Nova seleção de feed', function() {
 
-        // Antes de qualquer coisa precisamos buscar alguma informação
-        // do feed já carregado para poder comparar e verificar se
-        // o conteúdo foi substituído. Analisando o código, vemos que
-        // podemos capturar facilmente o link com classe "entry-link"
+        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+        Neste teste precisamos carregar um feed em seguida de outro, verificando
+        se as informações mudam corretamente entre as cargas de feed.
+        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        
+        let feedId = 0;                 // id do primeiro feed que será carregado
+        let i = 0;                      // contador para loop entre os artigos do feed
+        let artigos;                    // array que recebe o conteúdo do feed
+        let artigosTmp;                 // armazena os títulos de todos os artigos do feed
+        let artigosOld = "";            // armazena a artigosTmp do primeiro feed
 
-        const urlAntiga = $('.entry-link').attr('href');    // url do feed já carregado
-
-        // Como se trata de uma chamada assíncrona, precisamos chamar
-        // antes beforeEach com done como argumento.
+        // Carregamos
         beforeEach(function(done) {
-
-            loadFeed(1, done);      // chama a loadFeed - com id = 1 (outtro feed)
+            loadFeed(feedId, done);      // chama a loadFeed
+            artigosTmp = "";             // iniciamos a variável temporária
+            feedId += 1;                 // adiciona 1 ao id para a próxima chamada
         });
 
-        /* TODO: Write a test that ensures when a new feed is loaded
-         * by the loadFeed function that the content actually changes.
-         * Remember, loadFeed() is asynchronous.
-         */
+        it('conteúdo inicial carregado com sucesso', function() {
+            artigos = $('.feed .entry h2');                         // títulos de todas as feeds
+            
+            for (i = 0; i < artigos.length; i++) {
+                artigosTmp = artigosTmp + artigos[i].innerHTML;     // carregamos a variável temporária com todos os títulos
+            }
+
+            artigosOld = artigosTmp;                                // guardamos em uma variável para comparação
+
+            expect(artigosOld.length).toBeGreaterThan(0);           // fazemos um teste para ver se tudo correu bem
+        })
 
         it('conteúdo foi substituído com sucesso após troca de feed', function() {
-            
-            // Agora que o feed já foi carregado, pegamos o valor do  novo url
-            const urlNova = $('.entry-link').attr('href');  // url do feed que ainda iremos carregar
-            
-            expect(urlAntiga).not.toBe(urlNova);            // esperamos que a nova url seja diferente da antiga
+            artigos = $('.feed .entry h2');                         // títulos de todas as novas feeds
+            artigosTmp = "";                        
+
+            for (i = 0; i < artigos.length; i++) {
+                artigosTmp = artigosTmp + artigos[i].innerHTML;     // carregamos a variável temporária com os novos títulos
+            }
+                             
+            expect(artigosTmp).not.toBe(artigosOld);                // esperamos que os conteúdos dos feeds sejam diferentes
         });
 
     });

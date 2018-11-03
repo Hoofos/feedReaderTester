@@ -49,7 +49,7 @@ function init() {
        url: 'https://rsstojson.udacity.com/parseFeed',
        data: JSON.stringify({url: feedUrl}),
        contentType:"application/json",
-       success: function (result, status){
+       success: function (result, status) {
 
                  var container = $('.feed'),
                      title = $('.header-title'),
